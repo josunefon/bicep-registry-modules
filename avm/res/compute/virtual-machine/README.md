@@ -7617,7 +7617,12 @@ The configuration for the [Host Pool Registration] extension. Must at least cont
 
 - Required: No
 - Type: secureObject
-- Default: `{}`
+- Default:
+  ```Bicep
+  {
+      enabled: false
+  }
+  ```
 
 ### Parameter: `extensionMonitoringAgentConfig`
 

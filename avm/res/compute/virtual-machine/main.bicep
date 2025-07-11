@@ -212,7 +212,10 @@ param extensionNvidiaGpuDriverWindows object = {
 
 @description('Optional. The configuration for the [Host Pool Registration] extension. Must at least contain the ["enabled": true] property to be executed. Needs a managed identity.')
 @secure()
-param extensionHostPoolRegistration object = {}
+#disable-next-line secure-parameter-default
+param extensionHostPoolRegistration object = {
+  enabled: false
+}
 
 @description('Optional. The configuration for the [Guest Configuration] extension. Must at least contain the ["enabled": true] property to be executed. Needs a managed identity.')
 param extensionGuestConfigurationExtension object = {

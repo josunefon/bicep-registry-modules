@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "675014502320772130"
+      "templateHash": "16768625880883277083"
     },
     "name": "Virtual Machines",
     "description": "This module deploys a Virtual Machine with one or multiple NICs and optionally one or multiple public IPs."
@@ -2095,7 +2095,9 @@
     },
     "extensionHostPoolRegistration": {
       "type": "secureObject",
-      "defaultValue": {},
+      "defaultValue": {
+        "enabled": false
+      },
       "metadata": {
         "description": "Optional. The configuration for the [Host Pool Registration] extension. Must at least contain the [\"enabled\": true] property to be executed. Needs a managed identity."
       }

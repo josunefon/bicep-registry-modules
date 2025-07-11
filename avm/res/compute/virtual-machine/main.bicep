@@ -211,9 +211,8 @@ param extensionNvidiaGpuDriverWindows object = {
 }
 
 @description('Optional. The configuration for the [Host Pool Registration] extension. Must at least contain the ["enabled": true] property to be executed. Needs a managed identy.')
-param extensionHostPoolRegistration object = {
-  enabled: false
-}
+@secure()
+param extensionHostPoolRegistration object = {}
 
 @description('Optional. The configuration for the [Guest Configuration] extension. Must at least contain the ["enabled": true] property to be executed. Needs a managed identy.')
 param extensionGuestConfigurationExtension object = {
@@ -315,6 +314,24 @@ param winRMListeners winRMListenerType[]?
 
 @description('Optional. The configuration profile of automanage. Either \'/providers/Microsoft.Automanage/bestPractices/AzureBestPracticesProduction\', \'providers/Microsoft.Automanage/bestPractices/AzureBestPracticesDevTest\' or the resource Id of custom profile.')
 param configurationProfile string = ''
+
+@description('Optional. Capacity reservation group resource id that should be used for allocating the virtual machine vm instances provided enough capacity has been reserved.')
+param capacityReservationGroupId string = ''
+
+@allowed([
+  'AllowAll'
+  'AllowPrivate'
+  'DenyAll'
+])
+@description('Optional. Policy for accessing the disk via network.')
+param networkAccessPolicy string = 'DenyAll'
+
+@allowed([
+  'Disabled'
+  'Enabled'
+])
+@description('Optional. Policy for controlling export on the disk.')
+param publicNetworkAccess string = 'Disabled'
 
 var enableReferencedModulesTelemetry = false
 
@@ -536,6 +553,8 @@ resource managedDataDisks 'Microsoft.Compute/disks@2024-03-02' = [
       }
       diskIOPSReadWrite: dataDisk.?diskIOPSReadWrite
       diskMBpsReadWrite: dataDisk.?diskMBpsReadWrite
+      publicNetworkAccess: publicNetworkAccess
+      networkAccessPolicy: networkAccessPolicy
     }
     zones: zone != 0 && !contains(dataDisk.managedDisk.?storageAccountType, 'ZRS') ? array(string(zone)) : null
     tags: dataDisk.?tags ?? tags
@@ -635,6 +654,13 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
         }
       ]
     }
+    capacityReservation: !empty(capacityReservationGroupId)
+      ? {
+          capacityReservationGroup: {
+            id: capacityReservationGroupId
+          }
+        }
+      : null
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: !empty(bootDiagnosticStorageAccountName) ? true : bootDiagnostics

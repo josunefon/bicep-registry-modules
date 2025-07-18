@@ -242,7 +242,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource backupServiceKeyVaultPermissions 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource backupServiceKeyVaultPermissions 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (!empty(backupManagementServiceApplicationObjectId)) {
   name: guid('${keyVault.name}-${location}-BackupManagementService-KeyVault-KeyVaultAdministrator-RoleAssignment')
   scope: keyVault
   properties: {

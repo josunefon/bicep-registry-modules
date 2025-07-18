@@ -6,7 +6,7 @@ The latest version of the changelog can be found [here](https://github.com/Azure
 
 ### Changes
 
-- Break fix issue where the `resourceId` is incorrect when the recovery services vault is in another resource group. //todo: dkjdsjkakjsdasdasd
+- The capacityReservationGroupId, extensionGuestConfigurationExtension, networkAccessPolicy (disk), publicNetworkAccess (disk) parameters are now available for the Virtual Machine AVM module.
 
 ### Breaking Changes
 

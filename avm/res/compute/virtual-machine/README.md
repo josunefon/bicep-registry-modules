@@ -474,7 +474,7 @@ module virtualMachine 'br/public:avm/res/compute/virtual-machine:<version>' = {
       sku: '<sku>'
       version: 'latest'
     }
-    name: 'cvmlinmax'
+    name: 'cvmlinnmax'
     nicConfigurations: [
       {
         deleteOption: 'Delete'
@@ -777,7 +777,7 @@ module virtualMachine 'br/public:avm/res/compute/virtual-machine:<version>' = {
       }
     },
     "name": {
-      "value": "cvmlinmax"
+      "value": "cvmlinnmax"
     },
     "nicConfigurations": {
       "value": [
@@ -1132,7 +1132,7 @@ param imageReference = {
   sku: '<sku>'
   version: 'latest'
 }
-param name = 'cvmlinmax'
+param name = 'cvmlinnmax'
 param nicConfigurations = [
   {
     deleteOption: 'Delete'

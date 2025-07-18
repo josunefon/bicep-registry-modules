@@ -27,8 +27,7 @@ param namePrefix string = '#_namePrefix_#'
 
 @description('Required. The object id of the Backup Management Service Enterprise Application. This value is tenant-specific and must be stored in the CI Key Vault in a secret named \'CI-BackupManagementServiceEnterpriseApplicationObjectId\'.')
 @secure()
-#disable-next-line secure-parameter-default
-param backupManagementServiceEnterpriseApplicationObjectId string = '1de5ba0f-6130-42ed-8bcf-1f5ecca84aec'
+param backupManagementServiceEnterpriseApplicationObjectId string = ''
 
 // ============ //
 // Dependencies //

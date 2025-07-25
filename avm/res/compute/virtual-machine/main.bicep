@@ -942,9 +942,6 @@ module vm_customScriptExtension 'extension/main.bicep' = if (extensionCustomScri
     tags: extensionCustomScriptConfig.?tags ?? tags
     protectedSettings: extensionCustomScriptProtectedSetting
   }
-  dependsOn: [
-    vm_desiredStateConfigurationExtension
-  ]
 }
 
 module vm_azureDiskEncryptionExtension 'extension/main.bicep' = if (extensionAzureDiskEncryptionConfig.enabled) {

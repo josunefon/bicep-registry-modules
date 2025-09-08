@@ -320,6 +320,7 @@ param configurationProfile string = ''
 @description('Optional. Capacity reservation group resource id that should be used for allocating the virtual machine vm instances provided enough capacity has been reserved.')
 param capacityReservationGroupResourceId string = ''
 
+
 @allowed([
   'AllowAll'
   'AllowPrivate'
@@ -658,6 +659,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
         }
       ]
     }
+
     capacityReservation: !empty(capacityReservationGroupResourceId)
       ? {
           capacityReservationGroup: {

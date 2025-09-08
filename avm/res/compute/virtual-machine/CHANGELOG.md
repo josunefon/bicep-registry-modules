@@ -2,12 +2,34 @@
 
 The latest version of the changelog can be found [here](https://github.com/Azure/bicep-registry-modules/blob/main/avm/res/compute/virtual-machine/CHANGELOG.md).
 
+## 0.19.2
+
+### Changes
+
+- The capacityReservationGroupId, extensionGuestConfigurationExtension, networkAccessPolicy (disk), publicNetworkAccess (disk) parameters are now available for the Virtual Machine AVM module.
+
+### Breaking Changes
+
+- None
+
+## 0.18.0
+
+### Changes
+
+- Updated LockType to 'avm-common-types version' `0.6.0`, enabling custom notes for locks.
+- Added type to `tags` parameter
+- Changed default of `licenseType` parameter to nullable
+
+### Breaking Changes
+
+- Renamed parameter `dedicatedHostId` to `dedicatedHostResourceId`
 
 ## 0.17.0
 
 ### Changes
 
 - The `capacityReservationGroupId, extensionGuestConfigurationExtension, networkAccessPolicy (disk), publicNetworkAccess (disk)` parameters were added.
+- Updated ReadMe with AzAdvertizer reference
 
 ### Breaking Changes
 
@@ -23,7 +45,6 @@ The latest version of the changelog can be found [here](https://github.com/Azure
 
 - Renamed `zone` parameter to `availabilityZone`
 - Changed 'availabilityZone' allowed set from [0,1,2,3] to [-1,1,2,3]. -1 works in the same way as the previous 0 to specify that no zone is to be set
-
 
 ## 0.15.1
 

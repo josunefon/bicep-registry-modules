@@ -606,6 +606,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
           diskEncryptionSet: {
             id: osDisk.managedDisk.?diskEncryptionSetResourceId
           }
+          id: osDisk.managedDisk.?id
         }
       }
       dataDisks: [
@@ -932,20 +933,11 @@ module vm_customScriptExtension 'extension/main.bicep' = if (extensionCustomScri
     typeHandlerVersion: extensionCustomScriptConfig.?typeHandlerVersion ?? (osType == 'Windows' ? '1.10' : '2.1')
     autoUpgradeMinorVersion: extensionCustomScriptConfig.?autoUpgradeMinorVersion ?? true
     enableAutomaticUpgrade: extensionCustomScriptConfig.?enableAutomaticUpgrade ?? false
-    settings: {
-      fileUris: [
-        for fileData in extensionCustomScriptConfig.fileData: contains(fileData, 'storageAccountId')
-          ? '${fileData.uri}?${listAccountSas(fileData.storageAccountId, '2019-04-01', accountSasProperties).accountSasToken}'
-          : fileData.uri
-      ]
-    }
     supressFailures: extensionCustomScriptConfig.?supressFailures ?? false
     tags: extensionCustomScriptConfig.?tags ?? tags
-    protectedSettings: extensionCustomScriptProtectedSetting
+    settings: extensionCustomScriptConfig.?settings ?? {}
+    protectedSettings: extensionCustomScriptConfig.?protectedSettings ?? {}
   }
-  dependsOn: [
-    vm_desiredStateConfigurationExtension
-  ]
 }
 
 module vm_azureDiskEncryptionExtension 'extension/main.bicep' = if (extensionAzureDiskEncryptionConfig.enabled) {

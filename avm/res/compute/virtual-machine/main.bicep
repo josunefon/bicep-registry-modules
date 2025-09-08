@@ -606,6 +606,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
           diskEncryptionSet: {
             id: osDisk.managedDisk.?diskEncryptionSetResourceId
           }
+          id: osDisk.managedDisk.?id
         }
       }
       dataDisks: [

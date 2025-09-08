@@ -931,16 +931,10 @@ module vm_customScriptExtension 'extension/main.bicep' = if (extensionCustomScri
     typeHandlerVersion: extensionCustomScriptConfig.?typeHandlerVersion ?? (osType == 'Windows' ? '1.10' : '2.1')
     autoUpgradeMinorVersion: extensionCustomScriptConfig.?autoUpgradeMinorVersion ?? true
     enableAutomaticUpgrade: extensionCustomScriptConfig.?enableAutomaticUpgrade ?? false
-    settings: {
-      fileUris: [
-        for fileData in extensionCustomScriptConfig.fileData: contains(fileData, 'storageAccountId')
-          ? '${fileData.uri}?${listAccountSas(fileData.storageAccountId, '2019-04-01', accountSasProperties).accountSasToken}'
-          : fileData.uri
-      ]
-    }
     supressFailures: extensionCustomScriptConfig.?supressFailures ?? false
     tags: extensionCustomScriptConfig.?tags ?? tags
-    protectedSettings: extensionCustomScriptProtectedSetting
+    settings: extensionCustomScriptConfig.?settings ?? {}
+    protectedSettings: extensionCustomScriptConfig.?protectedSettings ?? {}
   }
 }
 

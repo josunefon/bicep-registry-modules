@@ -81,7 +81,7 @@ param evictionPolicy string = 'Deallocate'
 param maxPriceForLowPriorityVm string = ''
 
 @description('Optional. Specifies resource ID about the dedicated host that the virtual machine resides in.')
-param dedicatedHostId string = ''
+param dedicatedHostResourceId string = ''
 
 @description('Optional. Specifies that the image or disk that is being used was licensed on-premises.')
 @allowed([
@@ -89,9 +89,8 @@ param dedicatedHostId string = ''
   'SLES_BYOS'
   'Windows_Client'
   'Windows_Server'
-  ''
 ])
-param licenseType string = ''
+param licenseType string?
 
 @description('Optional. The list of SSH public keys used to authenticate with linux based VMs.')
 param publicKeys publicKeyType[] = []
@@ -121,14 +120,14 @@ param availabilitySetResourceId string = ''
 @description('Optional. Specifies the gallery applications that should be made available to the VM/VMSS.')
 param galleryApplications vmGalleryApplicationType[]?
 
-@description('Required. If set to 1, 2 or 3, the availability zone for all VMs is hardcoded to that value. If zero, then availability zones is not used. Cannot be used in combination with availability set nor scale set.')
+@description('Required. If set to 1, 2 or 3, the availability zone is hardcoded to that value. If set to -1, no zone is defined. Note that the availability zone numbers here are the logical availability zone in your Azure subscription. Different subscriptions might have a different mapping of the physical zone and logical zone. To understand more, please refer to [Physical and logical availability zones](https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview?tabs=azure-cli#physical-and-logical-availability-zones).')
 @allowed([
-  0
+  -1
   1
   2
   3
 ])
-param zone int
+param availabilityZone int
 
 // External resources
 @description('Required. Configures NICs and PIPs.')
@@ -237,7 +236,7 @@ param extensionGuestConfigurationExtensionProtectedSettings object = {}
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-import { lockType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
+import { lockType } from 'br/public:avm/utl/types/avm-common-types:0.6.0'
 @description('Optional. The lock settings of the service.')
 param lock lockType?
 
@@ -246,7 +245,7 @@ import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5
 param roleAssignments roleAssignmentType[]?
 
 @description('Optional. Tags of the resource.')
-param tags object?
+param tags resourceInput<'Microsoft.Compute/virtualMachines@2024-11-01'>.tags?
 
 @description('Optional. Enable/Disable usage telemetry for module.')
 param enableTelemetry bool = true
@@ -319,7 +318,8 @@ param winRMListeners winRMListenerType[]?
 param configurationProfile string = ''
 
 @description('Optional. Capacity reservation group resource id that should be used for allocating the virtual machine vm instances provided enough capacity has been reserved.')
-param capacityReservationGroupId string = ''
+param capacityReservationGroupResourceId string = ''
+
 
 @allowed([
   'AllowAll'
@@ -559,7 +559,9 @@ resource managedDataDisks 'Microsoft.Compute/disks@2024-03-02' = [
       publicNetworkAccess: publicNetworkAccess
       networkAccessPolicy: networkAccessPolicy
     }
-    zones: zone != 0 && !contains(dataDisk.managedDisk.?storageAccountType, 'ZRS') ? array(string(zone)) : null
+    zones: availabilityZone != -1 && !contains(dataDisk.managedDisk.?storageAccountType, 'ZRS')
+      ? array(string(availabilityZone))
+      : null
     tags: dataDisk.?tags ?? tags
   }
 ]
@@ -569,7 +571,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
   location: location
   identity: identity
   tags: tags
-  zones: zone != 0 ? array(string(zone)) : null
+  zones: availabilityZone != -1 ? array(string(availabilityZone)) : null
   plan: plan
   properties: {
     hardwareProfile: {
@@ -657,10 +659,11 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
         }
       ]
     }
-    capacityReservation: !empty(capacityReservationGroupId)
+
+    capacityReservation: !empty(capacityReservationGroupResourceId)
       ? {
           capacityReservationGroup: {
-            id: capacityReservationGroupId
+            id: capacityReservationGroupResourceId
           }
         }
       : null
@@ -700,12 +703,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
           maxPrice: json(maxPriceForLowPriorityVm)
         }
       : null
-    host: !empty(dedicatedHostId)
+    host: !empty(dedicatedHostResourceId)
       ? {
-          id: dedicatedHostId
+          id: dedicatedHostResourceId
         }
       : null
-    licenseType: !empty(licenseType) ? licenseType : null
+    licenseType: licenseType
     userData: !empty(userData) ? base64(userData) : null
   }
   dependsOn: [
@@ -1075,9 +1078,9 @@ resource vm_lock 'Microsoft.Authorization/locks@2020-05-01' = if (!empty(lock ??
   name: lock.?name ?? 'lock-${name}'
   properties: {
     level: lock.?kind ?? ''
-    notes: lock.?kind == 'CanNotDelete'
+    notes: lock.?notes ?? (lock.?kind == 'CanNotDelete'
       ? 'Cannot delete resource or child resources.'
-      : 'Cannot delete or modify the resource or child resources.'
+      : 'Cannot delete or modify the resource or child resources.')
   }
   scope: vm
 }

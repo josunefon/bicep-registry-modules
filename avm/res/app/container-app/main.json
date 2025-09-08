@@ -5,8 +5,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.36.177.2456",
-      "templateHash": "12434404033749285505"
+      "version": "0.37.4.10188",
+      "templateHash": "9906882863971119539"
     },
     "name": "Container Apps",
     "description": "This module deploys a Container App."
@@ -626,47 +626,14 @@
         "description": "The type for the container app's authentication configuration."
       }
     },
-    "diagnosticSettingFullType": {
+    "diagnosticSettingMetricsOnlyType": {
       "type": "object",
       "properties": {
         "name": {
           "type": "string",
           "nullable": true,
           "metadata": {
-            "description": "Optional. The name of the diagnostic setting."
-          }
-        },
-        "logCategoriesAndGroups": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "category": {
-                "type": "string",
-                "nullable": true,
-                "metadata": {
-                  "description": "Optional. Name of a Diagnostic Log category for a resource type this setting is applied to. Set the specific logs to collect here."
-                }
-              },
-              "categoryGroup": {
-                "type": "string",
-                "nullable": true,
-                "metadata": {
-                  "description": "Optional. Name of a Diagnostic Log category group for a resource type this setting is applied to. Set to `allLogs` to collect all logs."
-                }
-              },
-              "enabled": {
-                "type": "bool",
-                "nullable": true,
-                "metadata": {
-                  "description": "Optional. Enable or disable the category explicitly. Default is `true`."
-                }
-              }
-            }
-          },
-          "nullable": true,
-          "metadata": {
-            "description": "Optional. The name of logs that will be streamed. \"allLogs\" includes all possible logs for the resource. Set to `[]` to disable log collection."
+            "description": "Optional. The name of diagnostic setting."
           }
         },
         "metricCategories": {
@@ -742,7 +709,7 @@
         }
       },
       "metadata": {
-        "description": "An AVM-aligned type for a diagnostic setting. To be used if both logs & metrics are supported by the resource provider.",
+        "description": "An AVM-aligned type for a diagnostic setting. To be used if only metrics are supported by the resource provider.",
         "__bicep_imported_from!": {
           "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.6.0"
         }
@@ -769,12 +736,19 @@
           "metadata": {
             "description": "Optional. Specify the type of lock."
           }
+        },
+        "notes": {
+          "type": "string",
+          "nullable": true,
+          "metadata": {
+            "description": "Optional. Specify the notes of the lock."
+          }
         }
       },
       "metadata": {
         "description": "An AVM-aligned type for a lock.",
         "__bicep_imported_from!": {
-          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.4.1"
+          "sourceTemplate": "br:mcr.microsoft.com/bicep/avm/utl/types/avm-common-types:0.6.0"
         }
       }
     },
@@ -1234,7 +1208,7 @@
     "diagnosticSettings": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/diagnosticSettingFullType"
+        "$ref": "#/definitions/diagnosticSettingMetricsOnlyType"
       },
       "nullable": true,
       "metadata": {
@@ -1321,7 +1295,7 @@
       "name": "[coalesce(tryGet(parameters('lock'), 'name'), format('lock-{0}', parameters('name')))]",
       "properties": {
         "level": "[coalesce(tryGet(parameters('lock'), 'kind'), '')]",
-        "notes": "[if(equals(tryGet(parameters('lock'), 'kind'), 'CanNotDelete'), 'Cannot delete resource or child resources.', 'Cannot delete or modify the resource or child resources.')]"
+        "notes": "[coalesce(tryGet(parameters('lock'), 'notes'), if(equals(tryGet(parameters('lock'), 'kind'), 'CanNotDelete'), 'Cannot delete resource or child resources.', 'Cannot delete or modify the resource or child resources.'))]"
       },
       "dependsOn": [
         "containerApp"
@@ -1367,15 +1341,6 @@
               "category": "[coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'metricCategories'), createArray(createObject('category', 'AllMetrics')))[copyIndex('metrics')].category]",
               "enabled": "[coalesce(tryGet(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'metricCategories'), createArray(createObject('category', 'AllMetrics')))[copyIndex('metrics')], 'enabled'), true())]",
               "timeGrain": null
-            }
-          },
-          {
-            "name": "logs",
-            "count": "[length(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logCategoriesAndGroups'), createArray(createObject('categoryGroup', 'allLogs'))))]",
-            "input": {
-              "categoryGroup": "[tryGet(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logCategoriesAndGroups'), createArray(createObject('categoryGroup', 'allLogs')))[copyIndex('logs')], 'categoryGroup')]",
-              "category": "[tryGet(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logCategoriesAndGroups'), createArray(createObject('categoryGroup', 'allLogs')))[copyIndex('logs')], 'category')]",
-              "enabled": "[coalesce(tryGet(coalesce(tryGet(coalesce(parameters('diagnosticSettings'), createArray())[copyIndex()], 'logCategoriesAndGroups'), createArray(createObject('categoryGroup', 'allLogs')))[copyIndex('logs')], 'enabled'), true())]"
             }
           }
         ],
@@ -1430,8 +1395,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.36.177.2456",
-              "templateHash": "9975390462196064744"
+              "version": "0.37.4.10188",
+              "templateHash": "10571024989724677426"
             },
             "name": "Container App Auth Configs",
             "description": "This module deploys Container App Auth Configs."

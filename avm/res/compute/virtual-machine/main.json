@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "5112975888472543713"
+      "templateHash": "14551677257173735228"
     },
     "name": "Virtual Machines",
     "description": "This module deploys a Virtual Machine with one or multiple NICs and optionally one or multiple public IPs."
@@ -2500,7 +2500,8 @@
               "storageAccountType": "[tryGet(parameters('osDisk').managedDisk, 'storageAccountType')]",
               "diskEncryptionSet": {
                 "id": "[tryGet(parameters('osDisk').managedDisk, 'diskEncryptionSetResourceId')]"
-              }
+              },
+              "id": "[tryGet(parameters('osDisk').managedDisk, 'id')]"
             }
           }
         },
@@ -7061,25 +7062,17 @@
           "enableAutomaticUpgrade": {
             "value": "[coalesce(tryGet(parameters('extensionCustomScriptConfig'), 'enableAutomaticUpgrade'), false())]"
           },
-          "settings": {
-            "value": {
-              "copy": [
-                {
-                  "name": "fileUris",
-                  "count": "[length(parameters('extensionCustomScriptConfig').fileData)]",
-                  "input": "[if(contains(parameters('extensionCustomScriptConfig').fileData[copyIndex('fileUris')], 'storageAccountId'), format('{0}?{1}', parameters('extensionCustomScriptConfig').fileData[copyIndex('fileUris')].uri, listAccountSas(parameters('extensionCustomScriptConfig').fileData[copyIndex('fileUris')].storageAccountId, '2019-04-01', variables('accountSasProperties')).accountSasToken), parameters('extensionCustomScriptConfig').fileData[copyIndex('fileUris')].uri)]"
-                }
-              ]
-            }
-          },
           "supressFailures": {
             "value": "[coalesce(tryGet(parameters('extensionCustomScriptConfig'), 'supressFailures'), false())]"
           },
           "tags": {
             "value": "[coalesce(tryGet(parameters('extensionCustomScriptConfig'), 'tags'), parameters('tags'))]"
           },
+          "settings": {
+            "value": "[coalesce(tryGet(parameters('extensionCustomScriptConfig'), 'settings'), createObject())]"
+          },
           "protectedSettings": {
-            "value": "[parameters('extensionCustomScriptProtectedSetting')]"
+            "value": "[coalesce(tryGet(parameters('extensionCustomScriptConfig'), 'protectedSettings'), createObject())]"
           }
         },
         "template": {
@@ -7240,8 +7233,7 @@
         }
       },
       "dependsOn": [
-        "vm",
-        "vm_desiredStateConfigurationExtension"
+        "vm"
       ]
     },
     "vm_azureDiskEncryptionExtension": {

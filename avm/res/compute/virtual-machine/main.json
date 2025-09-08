@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "9246766008202793780"
+      "templateHash": "10502606086739097404"
     },
     "name": "Virtual Machines",
     "description": "This module deploys a Virtual Machine with one or multiple NICs and optionally one or multiple public IPs."
@@ -2539,6 +2539,7 @@
             }
           ]
         },
+
         "capacityReservation": "[if(not(empty(parameters('capacityReservationGroupResourceId'))), createObject('capacityReservationGroup', createObject('id', parameters('capacityReservationGroupResourceId'))), null())]",
         "diagnosticsProfile": {
           "bootDiagnostics": {

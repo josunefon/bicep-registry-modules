@@ -2,15 +2,15 @@
 
 The latest version of the changelog can be found [here](https://github.com/Azure/bicep-registry-modules/blob/main/avm/res/compute/virtual-machine/CHANGELOG.md).
 
-## 0.19.0
+## 0.19.2
 
 ### Changes
 
-- Adjusted the usage of the `ecryptionAtHost` property to only pass it to the resource provider if enabled
+- The capacityReservationGroupId, extensionGuestConfigurationExtension, networkAccessPolicy (disk), publicNetworkAccess (disk) parameters are now available for the Virtual Machine AVM module.
 
 ### Breaking Changes
 
-- Changing default value of `encryptionAtHost` from `true` to `false` to improve usability for subscription where the feature is or cannot be enabled
+- None
 
 ## 0.18.0
 
@@ -45,7 +45,6 @@ The latest version of the changelog can be found [here](https://github.com/Azure
 
 - Renamed `zone` parameter to `availabilityZone`
 - Changed 'availabilityZone' allowed set from [0,1,2,3] to [-1,1,2,3]. -1 works in the same way as the previous 0 to specify that no zone is to be set
-
 
 ## 0.15.1
 

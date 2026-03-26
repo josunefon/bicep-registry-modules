@@ -25,7 +25,6 @@ param vTpmEnabled bool = false
 @description('Conditional. OS image reference. In case of marketplace images, it\'s the combination of the publisher, offer, sku, version attributes. In case of custom images it\'s the resource ID of the custom image. Required if not creating the VM from an existing os-disk via the `osDisk.managedDisk.resourceId` parameter.')
 param imageReference resourceInput<'Microsoft.Compute/virtualMachines@2025-04-01'>.properties.storageProfile.imageReference?
 
-
 @description('Optional. Specifies information about the marketplace image used to create the virtual machine. This element is only used for marketplace images. Before you can use a marketplace image from an API, you must enable the image for programmatic use.')
 param plan planType?
 
@@ -141,8 +140,8 @@ param backupPolicyName string = 'DefaultPolicy'
 @description('Optional. The configuration for auto-shutdown.')
 param autoShutdownConfig autoShutDownConfigType = {}
 
-@description('Optional. The resource Id of a maintenance configuration for this VM.')
-param maintenanceConfigurationResourceId string = ''
+@description('Optional. The resource Id(s) of a maintenance configuration for this VM. Multiple assignments can be used for separate maintenance configurations e.g. for OS updates and security updates.')
+param maintenanceConfigurationResourceId string[] = []
 
 // Child resources
 @description('Optional. Specifies whether extension operations should be allowed on the virtual machine. This may only be set to False when no extensions are present on the virtual machine.')
@@ -710,15 +709,17 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-07-01' = {
   ]
 }
 
-resource vm_configurationAssignment 'Microsoft.Maintenance/configurationAssignments@2023-04-01' = if (!empty(maintenanceConfigurationResourceId)) {
-  name: '${vm.name}assignment'
-  location: location
-  properties: {
-    maintenanceConfigurationId: maintenanceConfigurationResourceId
-    resourceId: vm.id
+resource vm_configurationAssignment 'Microsoft.Maintenance/configurationAssignments@2023-04-01' = [
+  for (maintenanceConfigResourceId, index) in maintenanceConfigurationResourceId: {
+    name: '${vm.name}assignment${index}'
+    location: location
+    properties: {
+      maintenanceConfigurationId: maintenanceConfigResourceId
+      resourceId: vm.id
+    }
+    scope: vm
   }
-  scope: vm
-}
+]
 
 resource vm_configurationProfileAssignment 'Microsoft.Automanage/configurationProfileAssignments@2022-05-04' = if (!empty(configurationProfile)) {
   name: 'default'

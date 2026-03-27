@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.40.2.10011",
-      "templateHash": "6127878029192778391"
+      "templateHash": "11174786591327455716"
     },
     "name": "Virtual Machines",
     "description": "This module deploys a Virtual Machine with one or multiple NICs and optionally one or multiple public IPs."
@@ -2430,10 +2430,13 @@
       }
     },
     "maintenanceConfigurationResourceId": {
-      "type": "string",
-      "defaultValue": "",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "defaultValue": [],
       "metadata": {
-        "description": "Optional. The resource Id of a maintenance configuration for this VM."
+        "description": "Optional. The resource Id(s) of a maintenance configuration for this VM. Multiple assignments can be used for separate maintenance configurations e.g. for OS updates and security updates."
       }
     },
     "allowExtensionOperations": {
@@ -2961,14 +2964,17 @@
       ]
     },
     "vm_configurationAssignment": {
-      "condition": "[not(empty(parameters('maintenanceConfigurationResourceId')))]",
+      "copy": {
+        "name": "vm_configurationAssignment",
+        "count": "[length(parameters('maintenanceConfigurationResourceId'))]"
+      },
       "type": "Microsoft.Maintenance/configurationAssignments",
       "apiVersion": "2023-04-01",
       "scope": "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]",
-      "name": "[format('{0}assignment', parameters('name'))]",
+      "name": "[format('{0}assignment{1}', parameters('name'), copyIndex())]",
       "location": "[parameters('location')]",
       "properties": {
-        "maintenanceConfigurationId": "[parameters('maintenanceConfigurationResourceId')]",
+        "maintenanceConfigurationId": "[parameters('maintenanceConfigurationResourceId')[copyIndex()]]",
         "resourceId": "[resourceId('Microsoft.Compute/virtualMachines', parameters('name'))]"
       },
       "dependsOn": [

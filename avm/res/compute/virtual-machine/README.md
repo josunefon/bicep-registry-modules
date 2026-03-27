@@ -4878,7 +4878,7 @@ param imageReference = {
 | [`licenseType`](#parameter-licensetype) | string | Specifies that the image or disk that is being used was licensed on-premises. |
 | [`location`](#parameter-location) | string | Location for all resources. |
 | [`lock`](#parameter-lock) | object | The lock settings of the service. |
-| [`maintenanceConfigurationResourceId`](#parameter-maintenanceconfigurationresourceid) | string | The resource Id of a maintenance configuration for this VM. |
+| [`maintenanceConfigurationResourceId`](#parameter-maintenanceconfigurationresourceid) | array | The resource Id(s) of a maintenance configuration for this VM. Multiple assignments can be used for separate maintenance configurations e.g. for OS updates and security updates. |
 | [`managedIdentities`](#parameter-managedidentities) | object | The managed identity definition for this resource. The system-assigned managed identity will automatically be enabled if extensionAadJoinConfig.enabled = "True". |
 | [`maxPriceForLowPriorityVm`](#parameter-maxpriceforlowpriorityvm) | string | Specifies the maximum price you are willing to pay for a low priority VM/VMSS. This price is in US Dollars. |
 | [`networkAccessPolicy`](#parameter-networkaccesspolicy) | string | Policy for accessing the disk via network. |
@@ -7654,11 +7654,11 @@ Specify the notes of the lock.
 
 ### Parameter: `maintenanceConfigurationResourceId`
 
-The resource Id of a maintenance configuration for this VM.
+The resource Id(s) of a maintenance configuration for this VM. Multiple assignments can be used for separate maintenance configurations e.g. for OS updates and security updates.
 
 - Required: No
-- Type: string
-- Default: `''`
+- Type: array
+- Default: `[]`
 
 ### Parameter: `managedIdentities`
 

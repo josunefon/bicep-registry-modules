@@ -90,7 +90,7 @@ param licenseType string?
 @description('Optional. The list of SSH public keys used to authenticate with linux based VMs.')
 param publicKeys publicKeyType[] = []
 
-import { managedIdentityAllType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
+import { managedIdentityAllType } from 'br/public:avm/utl/types/avm-common-types:0.7.0'
 @description('Optional. The managed identity definition for this resource. The system-assigned managed identity will automatically be enabled if extensionAadJoinConfig.enabled = "True".')
 param managedIdentities managedIdentityAllType?
 
@@ -224,11 +224,11 @@ param extensionGuestConfigurationExtensionProtectedSettings object = {}
 @description('Optional. Location for all resources.')
 param location string = resourceGroup().location
 
-import { lockType } from 'br/public:avm/utl/types/avm-common-types:0.6.0'
+import { lockType } from 'br/public:avm/utl/types/avm-common-types:0.7.0'
 @description('Optional. The lock settings of the service.')
 param lock lockType?
 
-import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
+import { roleAssignmentType } from 'br/public:avm/utl/types/avm-common-types:0.7.0'
 @description('Optional. Array of role assignments to create.')
 param roleAssignments roleAssignmentType[]?
 
@@ -527,6 +527,11 @@ resource managedDataDisks 'Microsoft.Compute/disks@2025-01-02' = [
       creationData: {
         createOption: dataDisk.?createOption ?? 'Empty'
       }
+      encryption: !empty(dataDisk.managedDisk.?diskEncryptionSetResourceId)
+        ? {
+            diskEncryptionSetId: dataDisk.managedDisk.?diskEncryptionSetResourceId
+          }
+        : null
       diskIOPSReadWrite: dataDisk.?diskIOPSReadWrite
       diskMBpsReadWrite: dataDisk.?diskMBpsReadWrite
       publicNetworkAccess: publicNetworkAccess
@@ -757,6 +762,7 @@ resource vm_autoShutdownConfiguration 'Microsoft.DevTestLab/schedules@2018-09-15
 module vm_domainJoinExtension 'extension/main.bicep' = if (contains(extensionDomainJoinConfig, 'enabled') && extensionDomainJoinConfig.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-DomainJoin'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionDomainJoinConfig.?name ?? 'DomainJoin'
     location: location
@@ -794,6 +800,7 @@ var filteredAadJoinSettings = contains(aadJoinSettings, 'mdmId') && empty(aadJoi
 module vm_aadJoinExtension 'extension/main.bicep' = if (extensionAadJoinConfig.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-AADLogin'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionAadJoinConfig.?name ?? 'AADLogin'
     location: location
@@ -814,6 +821,7 @@ module vm_aadJoinExtension 'extension/main.bicep' = if (extensionAadJoinConfig.e
 module vm_microsoftAntiMalwareExtension 'extension/main.bicep' = if (extensionAntiMalwareConfig.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-MicrosoftAntiMalware'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionAntiMalwareConfig.?name ?? 'MicrosoftAntiMalware'
     location: location
@@ -844,6 +852,7 @@ module vm_microsoftAntiMalwareExtension 'extension/main.bicep' = if (extensionAn
 module vm_azureMonitorAgentExtension 'extension/main.bicep' = if (extensionMonitoringAgentConfig.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-AzureMonitorAgent'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionMonitoringAgentConfig.?name ?? 'AzureMonitorAgent'
     location: location
@@ -878,6 +887,7 @@ resource vm_dataCollectionRuleAssociations 'Microsoft.Insights/dataCollectionRul
 module vm_dependencyAgentExtension 'extension/main.bicep' = if (extensionDependencyAgentConfig.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-DependencyAgent'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionDependencyAgentConfig.?name ?? 'DependencyAgent'
     location: location
@@ -900,6 +910,7 @@ module vm_dependencyAgentExtension 'extension/main.bicep' = if (extensionDepende
 module vm_networkWatcherAgentExtension 'extension/main.bicep' = if (extensionNetworkWatcherAgentConfig.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-NetworkWatcherAgent'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionNetworkWatcherAgentConfig.?name ?? 'NetworkWatcherAgent'
     location: location
@@ -919,6 +930,7 @@ module vm_networkWatcherAgentExtension 'extension/main.bicep' = if (extensionNet
 module vm_desiredStateConfigurationExtension 'extension/main.bicep' = if (extensionDSCConfig.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-DesiredStateConfiguration'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionDSCConfig.?name ?? 'DesiredStateConfiguration'
     location: location
@@ -948,6 +960,7 @@ resource cseIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-3
 module vm_customScriptExtension 'extension/main.bicep' = if (!empty(extensionCustomScriptConfig)) {
   name: '${uniqueString(deployment().name, location)}-VM-CustomScriptExtension'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionCustomScriptConfig.?name ?? 'CustomScriptExtension'
     location: location
@@ -998,6 +1011,7 @@ module vm_customScriptExtension 'extension/main.bicep' = if (!empty(extensionCus
 module vm_azureDiskEncryptionExtension 'extension/main.bicep' = if (extensionAzureDiskEncryptionConfig.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-AzureDiskEncryption'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionAzureDiskEncryptionConfig.?name ?? 'AzureDiskEncryption'
     location: location
@@ -1019,6 +1033,7 @@ module vm_azureDiskEncryptionExtension 'extension/main.bicep' = if (extensionAzu
 module vm_nvidiaGpuDriverWindowsExtension 'extension/main.bicep' = if (extensionNvidiaGpuDriverWindows.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-NvidiaGpuDriverWindows'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionNvidiaGpuDriverWindows.?name ?? 'NvidiaGpuDriverWindows'
     location: location
@@ -1038,6 +1053,7 @@ module vm_nvidiaGpuDriverWindowsExtension 'extension/main.bicep' = if (extension
 module vm_hostPoolRegistrationExtension 'extension/main.bicep' = if (extensionHostPoolRegistration.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-HostPoolRegistration'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionHostPoolRegistration.?name ?? 'HostPoolRegistration'
     location: location
@@ -1070,6 +1086,7 @@ module vm_hostPoolRegistrationExtension 'extension/main.bicep' = if (extensionHo
 module vm_azureGuestConfigurationExtension 'extension/main.bicep' = if (extensionGuestConfigurationExtension.enabled) {
   name: '${uniqueString(deployment().name, location)}-VM-GuestConfiguration'
   params: {
+    enableTelemetry: enableReferencedModulesTelemetry
     virtualMachineName: vm.name
     name: extensionGuestConfigurationExtension.?name ?? osType == 'Windows'
       ? 'AzurePolicyforWindows'
@@ -1167,7 +1184,7 @@ output systemAssignedMIPrincipalId string? = vm.?identity.?principalId
 @description('The location the resource was deployed into.')
 output location string = vm.location
 
-import { networkInterfaceIPConfigurationOutputType } from 'br/public:avm/res/network/network-interface:0.5.1'
+import { networkInterfaceIPConfigurationOutputType } from 'br/public:avm/res/network/network-interface:0.5.3'
 @description('The list of NIC configurations of the virtual machine.')
 output nicConfigurations nicConfigurationOutputType[] = [
   for (nicConfiguration, index) in nicConfigurations: {
@@ -1283,8 +1300,8 @@ type publicKeyType = {
 }
 
 import { ipConfigurationType } from 'modules/nic-configuration.bicep'
-import { diagnosticSettingFullType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
-import { subResourceType } from 'br/public:avm/res/network/network-interface:0.5.1'
+import { diagnosticSettingFullType } from 'br/public:avm/utl/types/avm-common-types:0.7.0'
+import { subResourceType } from 'br/public:avm/res/network/network-interface:0.5.3'
 
 @export()
 @description('The type for the NIC configuration.')

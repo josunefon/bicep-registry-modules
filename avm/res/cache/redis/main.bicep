@@ -1,5 +1,9 @@
 metadata name = 'Redis Cache'
-metadata description = 'This module deploys a Redis Cache.'
+metadata description = '''This module deploys a Redis Cache.
+
+Please note that Azure Cache for Redis announced its retirement timeline for all SKUs ([ref](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview)).
+We recommend moving your existing Azure Cache for Redis instances to Azure Managed Redis as soon as you can using the `avm/res/cache/redis-enterprise` module.
+'''
 
 @description('Optional. The location to deploy the Redis cache service.')
 param location string = resourceGroup().location
@@ -94,14 +98,11 @@ param subnetResourceId string?
 @description('Optional. A dictionary of tenant settings.')
 param tenantSettings resourceInput<'Microsoft.Cache/redis@2024-11-01'>.properties.tenantSettings = {}
 
-@description('Optional. When true, replicas will be provisioned in availability zones specified in the zones parameter.')
-param zoneRedundant bool = true
-
-@description('Optional. If the zoneRedundant parameter is true, replicas will be provisioned in the availability zones specified here. Otherwise, the service will choose where replicas are deployed.')
+@description('Optional. Replicas will be provisioned in the availability zones specified here. Otherwise, the service will choose where replicas are deployed.')
 @allowed([1, 2, 3])
 param availabilityZones int[] = [1, 2, 3]
 
-@description('Optional. Specifies how availability zones are allocated to the Redis cache. "Automatic" enables zone redundancy and Azure will automatically select zones. "UserDefined" will select availability zones passed in by you using the "availabilityZones" parameter. "NoZones" will produce a non-zonal cache. Only applicable when zoneRedundant is true.')
+@description('Optional. Specifies how availability zones are allocated to the Redis cache. "Automatic" enables zone redundancy and Azure will automatically select zones. "UserDefined" will select availability zones passed in by you using the "availabilityZones" parameter. "NoZones" will produce a non-zonal cache. Only applicable when \'availabilityZones\' are not empty.')
 @allowed([
   'Automatic'
   'NoZones'
@@ -136,12 +137,6 @@ param firewallRules firewallRuleType[]?
 param secretsExportConfiguration secretsExportConfigurationType?
 
 var enableReferencedModulesTelemetry = false
-
-var zones = skuName == 'Premium'
-  ? zoneRedundant
-      ? !empty(availabilityZones) ? availabilityZones : pickZones('Microsoft.Cache', 'redis', location, 3)
-      : []
-  : []
 
 var formattedUserAssignedIdentities = reduce(
   map((managedIdentities.?userAssignedResourceIds ?? []), (id) => { '${id}': {} }),
@@ -231,9 +226,9 @@ resource redis 'Microsoft.Cache/redis@2024-11-01' = {
     staticIP: staticIP
     subnetId: subnetResourceId
     tenantSettings: tenantSettings
-    zonalAllocationPolicy: skuName == 'Premium' && zoneRedundant ? zonalAllocationPolicy : null
+    zonalAllocationPolicy: skuName == 'Premium' && !empty(availabilityZones) ? zonalAllocationPolicy : null
   }
-  zones: zones
+  zones: skuName == 'Premium' ? map(availabilityZones, zone => '${zone}') : []
 }
 
 // Deploy access policies
@@ -390,7 +385,7 @@ module redis_firewallRules 'firewall-rule/main.bicep' = [
   }
 ]
 
-module redis_geoReplication 'linked-servers/main.bicep' = if (!empty(geoReplicationObject)) {
+module redis_geoReplication 'linked-server/main.bicep' = if (!empty(geoReplicationObject)) {
   name: '${uniqueString(deployment().name, location)}-redis-LinkedServer'
   params: {
     redisCacheName: redis.name

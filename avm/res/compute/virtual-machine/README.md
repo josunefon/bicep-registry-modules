@@ -2492,6 +2492,7 @@ module virtualMachine 'br/public:avm/res/compute/virtual-machine:<version>' = {
     ]
     osDisk: {
       managedDisk: {
+        diskEncryptionSetResourceId: '<diskEncryptionSetResourceId>'
         resourceId: '<resourceId>'
       }
     }
@@ -2506,7 +2507,8 @@ module virtualMachine 'br/public:avm/res/compute/virtual-machine:<version>' = {
         diskMBpsReadWrite: 125
         diskSizeGB: 1024
         managedDisk: {
-          storageAccountType: 'PremiumV2_LRS'
+          diskEncryptionSetResourceId: '<diskEncryptionSetResourceId>'
+          storageAccountType: 'Premium_LRS'
         }
       }
       {
@@ -2559,6 +2561,7 @@ module virtualMachine 'br/public:avm/res/compute/virtual-machine:<version>' = {
     "osDisk": {
       "value": {
         "managedDisk": {
+          "diskEncryptionSetResourceId": "<diskEncryptionSetResourceId>",
           "resourceId": "<resourceId>"
         }
       }
@@ -2579,7 +2582,8 @@ module virtualMachine 'br/public:avm/res/compute/virtual-machine:<version>' = {
           "diskMBpsReadWrite": 125,
           "diskSizeGB": 1024,
           "managedDisk": {
-            "storageAccountType": "PremiumV2_LRS"
+            "diskEncryptionSetResourceId": "<diskEncryptionSetResourceId>",
+            "storageAccountType": "Premium_LRS"
           }
         },
         {
@@ -2628,6 +2632,7 @@ param nicConfigurations = [
 ]
 param osDisk = {
   managedDisk: {
+    diskEncryptionSetResourceId: '<diskEncryptionSetResourceId>'
     resourceId: '<resourceId>'
   }
 }
@@ -2642,7 +2647,8 @@ param dataDisks = [
     diskMBpsReadWrite: 125
     diskSizeGB: 1024
     managedDisk: {
-      storageAccountType: 'PremiumV2_LRS'
+      diskEncryptionSetResourceId: '<diskEncryptionSetResourceId>'
+      storageAccountType: 'Premium_LRS'
     }
   }
   {
@@ -8111,13 +8117,13 @@ This section gives you an overview of all local-referenced module files (i.e., o
 
 | Reference | Type |
 | :-- | :-- |
-| `br/public:avm/res/network/network-interface:0.5.1` | Remote reference |
 | `br/public:avm/res/network/network-interface:0.5.3` | Remote reference |
 | `br/public:avm/res/network/public-ip-address:0.12.0` | Remote reference |
 | `br/public:avm/res/network/public-ip-address:0.8.0` | Remote reference |
 | `br/public:avm/utl/types/avm-common-types:0.5.1` | Remote reference |
 | `br/public:avm/utl/types/avm-common-types:0.6.0` | Remote reference |
 | `br/public:avm/utl/types/avm-common-types:0.6.1` | Remote reference |
+| `br/public:avm/utl/types/avm-common-types:0.7.0` | Remote reference |
 
 ## Notes
 

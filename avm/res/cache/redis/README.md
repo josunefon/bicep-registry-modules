@@ -2,6 +2,10 @@
 
 This module deploys a Redis Cache.
 
+Please note that Azure Cache for Redis announced its retirement timeline for all SKUs ([ref](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview)).
+We recommend moving your existing Azure Cache for Redis instances to Azure Managed Redis as soon as you can using the `avm/res/cache/redis-enterprise` module.
+
+
 You can reference the module as follows:
 ```bicep
 module redis 'br/public:avm/res/cache/redis:<version>' = {
@@ -71,8 +75,8 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     // Required parameters
     name: 'crclst001'
     // Non-required parameters
+    availabilityZones: '<availabilityZones>'
     capacity: 3
-    location: '<location>'
     replicasPerMaster: 1
     replicasPerPrimary: 1
     shardCount: 3
@@ -98,11 +102,11 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
       "value": "crclst001"
     },
     // Non-required parameters
+    "availabilityZones": {
+      "value": "<availabilityZones>"
+    },
     "capacity": {
       "value": 3
-    },
-    "location": {
-      "value": "<location>"
     },
     "replicasPerMaster": {
       "value": 1
@@ -133,8 +137,8 @@ using 'br/public:avm/res/cache/redis:<version>'
 // Required parameters
 param name = 'crclst001'
 // Non-required parameters
+param availabilityZones = '<availabilityZones>'
 param capacity = 3
-param location = '<location>'
 param replicasPerMaster = 1
 param replicasPerPrimary = 1
 param shardCount = 3
@@ -158,10 +162,7 @@ You can find the full example and the setup of its dependencies in the deploymen
 ```bicep
 module redis 'br/public:avm/res/cache/redis:<version>' = {
   params: {
-    // Required parameters
     name: 'crmin001'
-    // Non-required parameters
-    location: '<location>'
   }
 }
 ```
@@ -178,13 +179,8 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    // Required parameters
     "name": {
       "value": "crmin001"
-    },
-    // Non-required parameters
-    "location": {
-      "value": "<location>"
     }
   }
 }
@@ -200,10 +196,7 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
 ```bicep-params
 using 'br/public:avm/res/cache/redis:<version>'
 
-// Required parameters
 param name = 'crmin001'
-// Non-required parameters
-param location = '<location>'
 ```
 
 </details>
@@ -239,7 +232,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
         objectIdAlias: '<objectIdAlias>'
       }
     ]
-    location: '<location>'
     redisConfiguration: {
       'aad-enabled': 'true'
     }
@@ -281,9 +273,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
         }
       ]
     },
-    "location": {
-      "value": "<location>"
-    },
     "redisConfiguration": {
       "value": {
         "aad-enabled": "true"
@@ -319,7 +308,6 @@ param accessPolicyAssignments = [
     objectIdAlias: '<objectIdAlias>'
   }
 ]
-param location = '<location>'
 param redisConfiguration = {
   'aad-enabled': 'true'
 }
@@ -334,6 +322,10 @@ This instance deploys the module saving all its secrets in a key vault.
 
 You can find the full example and the setup of its dependencies in the deployment test folder path [/tests/e2e/kv-secrets]
 
+> **Note**: This test is skipped from the CI deployment validation due to the presence of a `.e2eignore` file in the test folder. The reason for skipping the deployment is:
+```text
+The test is skipped because Azure Cache for Redis announced its retirement.
+```
 
 <details>
 
@@ -345,7 +337,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     // Required parameters
     name: 'kvref'
     // Non-required parameters
-    location: '<location>'
     secretsExportConfiguration: {
       keyVaultResourceId: '<keyVaultResourceId>'
       primaryAccessKeyName: 'custom-primaryAccessKey-name'
@@ -376,9 +367,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
       "value": "kvref"
     },
     // Non-required parameters
-    "location": {
-      "value": "<location>"
-    },
     "secretsExportConfiguration": {
       "value": {
         "keyVaultResourceId": "<keyVaultResourceId>",
@@ -407,7 +395,6 @@ using 'br/public:avm/res/cache/redis:<version>'
 // Required parameters
 param name = 'kvref'
 // Non-required parameters
-param location = '<location>'
 param secretsExportConfiguration = {
   keyVaultResourceId: '<keyVaultResourceId>'
   primaryAccessKeyName: 'custom-primaryAccessKey-name'
@@ -590,7 +577,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
       resourceType: 'Redis Cache'
     }
     zonalAllocationPolicy: 'UserDefined'
-    zoneRedundant: true
   }
 }
 ```
@@ -798,9 +784,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     },
     "zonalAllocationPolicy": {
       "value": "UserDefined"
-    },
-    "zoneRedundant": {
-      "value": true
     }
   }
 }
@@ -970,7 +953,6 @@ param tags = {
   resourceType: 'Redis Cache'
 }
 param zonalAllocationPolicy = 'UserDefined'
-param zoneRedundant = true
 ```
 
 </details>
@@ -982,6 +964,10 @@ This instance deploys the module with geo-replication enabled.
 
 You can find the full example and the setup of its dependencies in the deployment test folder path [/tests/e2e/passive-geo-replication]
 
+> **Note**: This test is skipped from the CI deployment validation due to the presence of a `.e2eignore` file in the test folder. The reason for skipping the deployment is:
+```text
+The test is skipped because Azure Cache for Redis announced its retirement.
+```
 
 <details>
 
@@ -993,6 +979,7 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     // Required parameters
     name: 'crpgeo001'
     // Non-required parameters
+    availabilityZones: []
     capacity: 2
     enableNonSslPort: true
     geoReplicationObject: {
@@ -1000,18 +987,12 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
       linkedRedisCacheResourceId: '<linkedRedisCacheResourceId>'
       name: '<name>'
     }
-    location: '<location>'
-    lock: {
-      kind: 'CanNotDelete'
-      name: 'myCustomLockName'
-    }
     minimumTlsVersion: '1.2'
     redisVersion: '6'
     replicasPerMaster: 1
     replicasPerPrimary: 1
     shardCount: 1
     skuName: 'Premium'
-    zoneRedundant: false
   }
 }
 ```
@@ -1033,6 +1014,9 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
       "value": "crpgeo001"
     },
     // Non-required parameters
+    "availabilityZones": {
+      "value": []
+    },
     "capacity": {
       "value": 2
     },
@@ -1044,15 +1028,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
         "linkedRedisCacheLocation": "<linkedRedisCacheLocation>",
         "linkedRedisCacheResourceId": "<linkedRedisCacheResourceId>",
         "name": "<name>"
-      }
-    },
-    "location": {
-      "value": "<location>"
-    },
-    "lock": {
-      "value": {
-        "kind": "CanNotDelete",
-        "name": "myCustomLockName"
       }
     },
     "minimumTlsVersion": {
@@ -1072,9 +1047,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     },
     "skuName": {
       "value": "Premium"
-    },
-    "zoneRedundant": {
-      "value": false
     }
   }
 }
@@ -1093,6 +1065,7 @@ using 'br/public:avm/res/cache/redis:<version>'
 // Required parameters
 param name = 'crpgeo001'
 // Non-required parameters
+param availabilityZones = []
 param capacity = 2
 param enableNonSslPort = true
 param geoReplicationObject = {
@@ -1100,18 +1073,12 @@ param geoReplicationObject = {
   linkedRedisCacheResourceId: '<linkedRedisCacheResourceId>'
   name: '<name>'
 }
-param location = '<location>'
-param lock = {
-  kind: 'CanNotDelete'
-  name: 'myCustomLockName'
-}
 param minimumTlsVersion = '1.2'
 param redisVersion = '6'
 param replicasPerMaster = 1
 param replicasPerPrimary = 1
 param shardCount = 1
 param skuName = 'Premium'
-param zoneRedundant = false
 ```
 
 </details>
@@ -1134,7 +1101,7 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     // Required parameters
     name: 'crper001'
     // Non-required parameters
-    location: '<location>'
+    availabilityZones: []
     managedIdentities: {
       userAssignedResourceIds: [
         '<managedIdentityResourceId>'
@@ -1151,7 +1118,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     replicasPerMaster: 1
     replicasPerPrimary: 1
     skuName: 'Premium'
-    zoneRedundant: false
   }
 }
 ```
@@ -1173,8 +1139,8 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
       "value": "crper001"
     },
     // Non-required parameters
-    "location": {
-      "value": "<location>"
+    "availabilityZones": {
+      "value": []
     },
     "managedIdentities": {
       "value": {
@@ -1201,9 +1167,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     },
     "skuName": {
       "value": "Premium"
-    },
-    "zoneRedundant": {
-      "value": false
     }
   }
 }
@@ -1222,7 +1185,7 @@ using 'br/public:avm/res/cache/redis:<version>'
 // Required parameters
 param name = 'crper001'
 // Non-required parameters
-param location = '<location>'
+param availabilityZones = []
 param managedIdentities = {
   userAssignedResourceIds: [
     '<managedIdentityResourceId>'
@@ -1239,7 +1202,6 @@ param redisConfiguration = {
 param replicasPerMaster = 1
 param replicasPerPrimary = 1
 param skuName = 'Premium'
-param zoneRedundant = false
 ```
 
 </details>
@@ -1262,7 +1224,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     // Required parameters
     name: 'crcfg001'
     // Non-required parameters
-    location: '<location>'
     redisConfiguration: {
       'maxfragmentationmemory-reserved': '50'
       'maxmemory-delta': '50'
@@ -1290,9 +1251,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
       "value": "crcfg001"
     },
     // Non-required parameters
-    "location": {
-      "value": "<location>"
-    },
     "redisConfiguration": {
       "value": {
         "maxfragmentationmemory-reserved": "50",
@@ -1318,7 +1276,6 @@ using 'br/public:avm/res/cache/redis:<version>'
 // Required parameters
 param name = 'crcfg001'
 // Non-required parameters
-param location = '<location>'
 param redisConfiguration = {
   'maxfragmentationmemory-reserved': '50'
   'maxmemory-delta': '50'
@@ -1347,11 +1304,7 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     // Required parameters
     name: 'crwaf001'
     // Non-required parameters
-    availabilityZones: [
-      1
-      2
-      3
-    ]
+    availabilityZones: '<availabilityZones>'
     capacity: 2
     diagnosticSettings: [
       {
@@ -1367,11 +1320,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
         workspaceResourceId: '<workspaceResourceId>'
       }
     ]
-    location: '<location>'
-    lock: {
-      kind: 'CanNotDelete'
-      name: 'myCustomLockName'
-    }
     managedIdentities: {
       systemAssigned: true
     }
@@ -1403,7 +1351,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
       resourceType: 'Redis Cache'
     }
     zonalAllocationPolicy: 'UserDefined'
-    zoneRedundant: true
   }
 }
 ```
@@ -1426,11 +1373,7 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     },
     // Non-required parameters
     "availabilityZones": {
-      "value": [
-        1,
-        2,
-        3
-      ]
+      "value": "<availabilityZones>"
     },
     "capacity": {
       "value": 2
@@ -1450,15 +1393,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
           "workspaceResourceId": "<workspaceResourceId>"
         }
       ]
-    },
-    "location": {
-      "value": "<location>"
-    },
-    "lock": {
-      "value": {
-        "kind": "CanNotDelete",
-        "name": "myCustomLockName"
-      }
     },
     "managedIdentities": {
       "value": {
@@ -1510,9 +1444,6 @@ module redis 'br/public:avm/res/cache/redis:<version>' = {
     },
     "zonalAllocationPolicy": {
       "value": "UserDefined"
-    },
-    "zoneRedundant": {
-      "value": true
     }
   }
 }
@@ -1531,11 +1462,7 @@ using 'br/public:avm/res/cache/redis:<version>'
 // Required parameters
 param name = 'crwaf001'
 // Non-required parameters
-param availabilityZones = [
-  1
-  2
-  3
-]
+param availabilityZones = '<availabilityZones>'
 param capacity = 2
 param diagnosticSettings = [
   {
@@ -1551,11 +1478,6 @@ param diagnosticSettings = [
     workspaceResourceId: '<workspaceResourceId>'
   }
 ]
-param location = '<location>'
-param lock = {
-  kind: 'CanNotDelete'
-  name: 'myCustomLockName'
-}
 param managedIdentities = {
   systemAssigned: true
 }
@@ -1587,7 +1509,6 @@ param tags = {
   resourceType: 'Redis Cache'
 }
 param zonalAllocationPolicy = 'UserDefined'
-param zoneRedundant = true
 ```
 
 </details>
@@ -1607,7 +1528,7 @@ param zoneRedundant = true
 | :-- | :-- | :-- |
 | [`accessPolicies`](#parameter-accesspolicies) | array | Array of access policies to create. |
 | [`accessPolicyAssignments`](#parameter-accesspolicyassignments) | array | Array of access policy assignments. |
-| [`availabilityZones`](#parameter-availabilityzones) | array | If the zoneRedundant parameter is true, replicas will be provisioned in the availability zones specified here. Otherwise, the service will choose where replicas are deployed. |
+| [`availabilityZones`](#parameter-availabilityzones) | array | Replicas will be provisioned in the availability zones specified here. Otherwise, the service will choose where replicas are deployed. |
 | [`capacity`](#parameter-capacity) | int | The size of the Redis cache to deploy. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4). |
 | [`diagnosticSettings`](#parameter-diagnosticsettings) | array | The diagnostic settings of the service. |
 | [`disableAccessKeyAuthentication`](#parameter-disableaccesskeyauthentication) | bool | Disable authentication via access keys. |
@@ -1633,8 +1554,7 @@ param zoneRedundant = true
 | [`subnetResourceId`](#parameter-subnetresourceid) | string | The full resource ID of a subnet in a virtual network to deploy the Redis cache in. |
 | [`tags`](#parameter-tags) | object | Tags of the resource. |
 | [`tenantSettings`](#parameter-tenantsettings) | object | A dictionary of tenant settings. |
-| [`zonalAllocationPolicy`](#parameter-zonalallocationpolicy) | string | Specifies how availability zones are allocated to the Redis cache. "Automatic" enables zone redundancy and Azure will automatically select zones. "UserDefined" will select availability zones passed in by you using the "availabilityZones" parameter. "NoZones" will produce a non-zonal cache. Only applicable when zoneRedundant is true. |
-| [`zoneRedundant`](#parameter-zoneredundant) | bool | When true, replicas will be provisioned in availability zones specified in the zones parameter. |
+| [`zonalAllocationPolicy`](#parameter-zonalallocationpolicy) | string | Specifies how availability zones are allocated to the Redis cache. "Automatic" enables zone redundancy and Azure will automatically select zones. "UserDefined" will select availability zones passed in by you using the "availabilityZones" parameter. "NoZones" will produce a non-zonal cache. Only applicable when 'availabilityZones' are not empty. |
 
 ### Parameter: `name`
 
@@ -1722,7 +1642,7 @@ The name of the Access Policy Assignment.
 
 ### Parameter: `availabilityZones`
 
-If the zoneRedundant parameter is true, replicas will be provisioned in the availability zones specified here. Otherwise, the service will choose where replicas are deployed.
+Replicas will be provisioned in the availability zones specified here. Otherwise, the service will choose where replicas are deployed.
 
 - Required: No
 - Type: array
@@ -2811,7 +2731,7 @@ A dictionary of tenant settings.
 
 ### Parameter: `zonalAllocationPolicy`
 
-Specifies how availability zones are allocated to the Redis cache. "Automatic" enables zone redundancy and Azure will automatically select zones. "UserDefined" will select availability zones passed in by you using the "availabilityZones" parameter. "NoZones" will produce a non-zonal cache. Only applicable when zoneRedundant is true.
+Specifies how availability zones are allocated to the Redis cache. "Automatic" enables zone redundancy and Azure will automatically select zones. "UserDefined" will select availability zones passed in by you using the "availabilityZones" parameter. "NoZones" will produce a non-zonal cache. Only applicable when 'availabilityZones' are not empty.
 
 - Required: No
 - Type: string
@@ -2823,14 +2743,6 @@ Specifies how availability zones are allocated to the Redis cache. "Automatic" e
     'UserDefined'
   ]
   ```
-
-### Parameter: `zoneRedundant`
-
-When true, replicas will be provisioned in availability zones specified in the zones parameter.
-
-- Required: No
-- Type: bool
-- Default: `True`
 
 ## Outputs
 
